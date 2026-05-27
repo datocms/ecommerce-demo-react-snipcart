@@ -1,6 +1,5 @@
 import Product from './components/Product';
 import { ProductType } from './types';
-import { buildClient } from '@datocms/cma-client-browser';
 import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
@@ -8,30 +7,60 @@ const snipcartApiToken =
   process.env.REACT_APP_SNIPCART_API_KEY ||
   'OWE3MmZmMjQtNTk3Yi00OThhLWEwMmUtZDY4ZWM4NzIwYzZiNjM2NjM0Mzc1NzE0MTUwNzI1';
 
-const client = buildClient({
-  apiToken:
-    process.env.REACT_APP_DATOCMS_READONLY_API_KEY ||
-    '54c731b10e58adae303dc14b37ffff',
-});
+const datocmsPublishedContentCdaToken =
+  process.env.REACT_APP_DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN;
 
-const fetchUploads = async (p: ProductType) => {
-  const upload = await client.uploads.find(p.image.upload_id);
+async function fetchProductsFromDatoCMS(): Promise<ProductType[]> {
+  if (!datocmsPublishedContentCdaToken) {
+    throw new Error('Missing REACT_APP_DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN');
+  }
 
-  p.image = { ...p.image, ...upload };
-  return p;
-};
+  const response = await fetch('https://graphql.datocms.com/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${datocmsPublishedContentCdaToken}`,
+    },
+    body: JSON.stringify({
+      query: `
+        {
+          allProducts {
+            id
+            name
+            description
+            price
+            image {
+              url
+              alt
+              title
+            }
+          }
+        }
+      `,
+    }),
+  });
+
+  const { data, errors } = await response.json();
+
+  if (!response.ok || errors) {
+    throw new Error(`Failed to fetch products: ${JSON.stringify(errors)}`);
+  }
+
+  return data.allProducts;
+}
 
 export default function App() {
   const [products, setProducts] = useState<ProductType[] | null>(null);
 
   const fetchProducts = useCallback(async () => {
-    const products = (await client.items.list({
-      filter: { type: 'product' },
-    })) as unknown as ProductType[];
+    try {
+      const products = await fetchProductsFromDatoCMS();
 
-    const withImages = await Promise.all(products.map(fetchUploads));
-
-    setProducts(withImages);
+      setProducts(products);
+    } catch (error) {
+      console.error(error);
+      setProducts([]);
+    }
   }, [setProducts]);
 
   useEffect(() => {

@@ -5,8 +5,6 @@ export type ProductType = {
   price: number;
   image: {
     url: string;
-    upload_id: string;
-    path?: string;
     alt?: string | undefined;
     title?: string | undefined;
   };

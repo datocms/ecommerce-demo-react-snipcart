@@ -40,7 +40,7 @@ For the demo to work you need to go in your Vercel project > settings > environm
 
 ## Register on Snipcart
 
-Register on Snipcart and provide your REACT_APP_SNIPCART_API_KEY in your `.env.local` file
+Register on Snipcart and provide `REACT_APP_SNIPCART_API_KEY` in your `.env.local` file. Also set `REACT_APP_DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` to a DatoCMS CDA Only (Published) token.
 
 ## Available Scripts
 
