@@ -6,6 +6,11 @@
   "repo": "https://github.com/datocms/ecommerce-demo-react-snipcart",
   "datocmsProjectId": "56262",
   "deploymentType": "static",
-  "datocmsApiTokenEnvName": "REACT_APP_DATOCMS_READONLY_API_KEY",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "environmentVariables": {
+    "REACT_APP_DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN": {
+      "type": "datocmsAccessToken",
+      "tokenName": "CDA Only (Published)"
+    }
+  }
 }
